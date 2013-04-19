@@ -10,8 +10,9 @@ class Episode {
 	public $Open;
 	public $Count;
 	public $Breadcrumbs;
+	public $Depth;
 
-	public function __construct($link, $breadcrumbs, $parentID, $name, $mind = 0, $count = 1, $type = 0, $id = NULL, $title = NULL, $open = 0 ) {
+	public function __construct($link, $breadcrumbs, $parentID, $name, $mind = 0, $count = 1, $type = 0, $id = NULL, $title = NULL, $open = 0 , $depth = NULL) {
 		// must be
 		$this->Link = $link;
 		$this->Breadcrumbs = $breadcrumbs;
@@ -27,6 +28,7 @@ class Episode {
 		$this->Type = $type;
 		$this->ID = $id;
 		$this->Title = $title;
+		$this->Depth = $depth;
 	}
 
 	public function Serial(){
@@ -45,6 +47,7 @@ class Episode {
 		$serialized['Type'] = $this->Type;
 		$serialized['Link'] = $this->Link;
 		$serialized['Breadcrumbs'] = $this->Breadcrumbs;
+		$serialized['Depth'] = $this->Depth;
 
 		return $serialized;
 	}
@@ -179,8 +182,9 @@ class Episode {
 				$odp .= "<div class='icon-ui icon-burst' onclick='get_ajax(\"burst\",\"".$this->Breadcrumbs."\");return false;'></div>";
 				if($this->Count > 0) $odp .= "<span id='ctli-".$this->Breadcrumbs."' class='count'>[{$this->Count}]</span>";
 				else $odp .= "<span id='ctli-".$this->Breadcrumbs."' class='done'>[Done]</span>";
-				$odp .= "<div class='icon-ui icon-cut' onclick='get_ajax(\"cut\",\"".$this->Breadcrumbs."\");return false;'></div>";
-				if($this->Mind == 0)	$odp .= "<div class='icon-ui icon-mind' onclick='get_ajax(\"mind\",\"".$this->Breadcrumbs."\");return false;'></div>";
+				$odp .= "<span id='dtli-".$this->Breadcrumbs."' class='depth'>[{$this->Depth}]</span>";
+				if($this->Depth != NULL && $this->Depth > 0) $odp .= "<div class='icon-ui icon-cut' onclick='get_ajax(\"cut\",\"".$this->Breadcrumbs."\");return false;'></div>";
+				if($this->Mind == 0) $odp .= "<div class='icon-ui icon-mind' onclick='get_ajax(\"mind\",\"".$this->Breadcrumbs."\");return false;'></div>";
 				else $odp .= "<div class='icon-ui2 icon-mind' onclick='get_ajax(\"mind\",\"".$this->Breadcrumbs."\");return false;'></div>";
 				$odp .= "<div class='icon-ui icon-info' onclick='get_ajax(\"info\",\"".$this->Breadcrumbs."\");return false;'></div>";
 				$odp .= "<a target='_blank' href='".$this->Link."'><div class='icon-ui icon-out'></div></a>";

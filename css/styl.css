@@ -7,7 +7,7 @@ html, body {
 	overflow-y: hidden;
 }
 .active{
-	text-shadow: 1px 1px #CCC;
+	text-shadow: 2px 2px #CCC;
 }
 
 /* tree */
@@ -74,6 +74,15 @@ a {
 }
 .count {
 	color: orange;
+}
+.depth {
+	color: BlueViolet;
+}
+.count-fade {
+	color: Chocolate;
+}
+.depth-fade {
+	color: indigo;
 }
 .done {
 	color: Brown;

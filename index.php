@@ -58,6 +58,18 @@ session_start();
 		$_SESSION['cut'] = '0';
 		$CUT = $_SESSION['cut'];
 	}
+	if(isset($_POST['rozwin'])){
+		$ren = 0;
+		if(!isset($_SESSION['renew'])) {
+			$_SESSION = time();
+			$ren = 1;
+		} else {
+			if($_SESSION['renew'] + 30 < time()) {
+				$_SESSION['renew'] = time();
+				$ren = 1;
+			}
+		}
+	}
 session_write_close();
 // koniec sesji
 
@@ -69,7 +81,8 @@ if(isset($_POST['AJAX'])) {
 		if($cel !== FALSE) {
 			try {
 				$cel->rozwin(1);
-				$db->renew();
+				if($ren == 1)
+					$db->renew();
 				if($cel->Open == 1 && $cel->Type = 5)
 					$ep = "yes";
 				else

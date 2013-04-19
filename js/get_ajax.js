@@ -42,12 +42,16 @@ function get_ajax(co, kto) {
 		default:
 			break;
 	}
+	if(co == "burst" || co == "rozwin") {
+		$('.depth').switchClass('depth', 'depth-fade', 3000);
+		$('.count').switchClass('count', 'count-fade', 3000);
+	}
 
-			if(co == "burst" || co == "rozwin" || co == "open" || co == "close") {
-				$('#li-'+kto).fadeTo('slow', 0.3);
-			} else if(co == 'mind') {
-				$('#li-'+kto+' > div').fadeTo('slow', 0.3, function(){$('#li-'+kto+' > div').fadeTo('slow', 1);});
-			}
+	if(co == "burst" || co == "rozwin" || co == "open" || co == "close") {
+		$('#li-'+kto).fadeTo('slow', 0.3);
+	} else if(co == 'mind') {
+		$('#li-'+kto+' > div').fadeTo('slow', 0.3, function(){$('#li-'+kto+' > div').fadeTo('slow', 1);});
+	}
 
 			$('#task').append("<div id='"+tmp+"' style='display: none'>"+kto+": "+co+"</div>");
 			$('#'+tmp).show({duration: "slow", queue: "false"});

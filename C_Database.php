@@ -172,10 +172,35 @@ order by e.`Type`, e.ID
 			$GLOBALS['err'] .= vd::dump($exc->getTrace());
 			return false;
 		}
+		$sql = "UPDATE
+							Element s,
+							(
+								SELECT E.ID, E.Breadcrumbs, CAST((MAX(LENGTH(F.Breadcrumbs)) - LENGTH(E.Breadcrumbs))/2 as UNSIGNED) as 'Depth'
+									FROM Element E
+									LEFT JOIN Element F
+										ON (F.Breadcrumbs LIKE CONCAT(E.Breadcrumbs,'-%'))
+									WHERE
+										E.`Type` = 5
+									GROUP BY E.ID
+							) n
+							SET
+								s.Depth = n.Depth
+							WHERE
+								s.ID = n.ID";
+		try{
+			$i = $this->mysqli->query($sql);
+			if($i === FALSE){
+				throw new Exception('Nie można odnowić epizodów: ' . $this->mysqli->error.'<br/>Zapytanie: '.$sql);
+			}
+		} catch(Exception $exc) {
+			$GLOBALS['err'] .= $exc->getMessage();
+			$GLOBALS['err'] .= vd::dump($exc->getTrace());
+			return false;
+		}
 	}
 
 	public function select($breadcrumbs) {
-		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs` FROM `Element` WHERE `Breadcrumbs` LIKE '".$breadcrumbs."'";
+		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs`, `Depth` FROM `Element` WHERE `Breadcrumbs` LIKE '".$breadcrumbs."'";
 		try{
 			$i = $this->mysqli->query($sql);
 			if($i === FALSE){
@@ -190,12 +215,12 @@ order by e.`Type`, e.ID
 			return false;
 		} elseif ($i->num_rows == 1) {
 			$row = $i->fetch_assoc();
-			$epi = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open']);
+			$epi = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open'], (int)$row['Depth']);
 			$i->free();
 			return $epi;
 		}	else {
 			while(($row = $i->fetch_assoc())) {
-				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open']);
+				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open'], (int)$row['Depth']);
 			}
 			$i->free();
 			return $epi;
@@ -203,7 +228,7 @@ order by e.`Type`, e.ID
 	}
 
 		public function selectID($id) {
-		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs` FROM `Element` WHERE `ID` = '".$id."'";
+		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs`, `Depth` FROM `Element` WHERE `ID` = '".$id."'";
 		try{
 			$i = $this->mysqli->query($sql);
 			if($i === FALSE){
@@ -218,12 +243,12 @@ order by e.`Type`, e.ID
 			return false;
 		} elseif ($i->num_rows == 1) {
 			$row = $i->fetch_assoc();
-			$epi = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open']);
+			$epi = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open'], (int)$row['Depth']);
 			$i->free();
 			return $epi;
 		}	else {
 			while(($row = $i->fetch_assoc())) {
-				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open']);
+				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open'], (int)$row['Depth']);
 			}
 			$i->free();
 			return $epi;
@@ -231,7 +256,7 @@ order by e.`Type`, e.ID
 	}
 
 		public function memory() {
-		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs` FROM `Element` WHERE `Mind` = '1' ORDER BY `Breadcrumbs`";
+		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs`, `Depth` FROM `Element` WHERE `Mind` = '1' ORDER BY `Breadcrumbs`";
 		try{
 			$i = $this->mysqli->query($sql);
 			if($i === FALSE){
@@ -246,7 +271,7 @@ order by e.`Type`, e.ID
 			return false;
 		} else {
 			while(($row = $i->fetch_assoc())) {
-				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open']);
+				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open'], (int)$row['Depth']);
 			}
 			$i->free();
 			return $epi;
@@ -254,7 +279,7 @@ order by e.`Type`, e.ID
 	}
 
 		public function ghosts() {
-		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs` FROM `Element` WHERE `Type` = '8'";
+		$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs`, `Depth` FROM `Element` WHERE `Type` = '8'";
 		try{
 			$i = $this->mysqli->query($sql);
 			if($i === FALSE){
@@ -269,7 +294,7 @@ order by e.`Type`, e.ID
 			return false;
 		} else {
 			while(($row = $i->fetch_assoc())) {
-				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open']);
+				$epi[] = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open'], (int)$row['Depth']);
 			}
 			$i->free();
 			return $epi;
@@ -307,7 +332,7 @@ order by e.`Type`, e.ID
 
 	public function podmiana(&$epi) {
 		try{
-			$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs` FROM `Element` WHERE `Link` = '".$epi->Link."' AND `Type` < 8 LIMIT 1";
+			$sql = "SELECT `ID`, `Name`, `Title`, `ParentID`, `Type`, `Mind`, `Open`, `Count`, `Link`, `Breadcrumbs`, `Depth` FROM `Element` WHERE `Link` = '".$epi->Link."' AND `Type` < 8 LIMIT 1";
 			$i = $this->mysqli->query($sql);
 			if($i === FALSE){
 				throw new Exception('Nie można wczytać epizodu: ' . $this->mysqli->error.'<br/>Zapytanie: '.$sql);
@@ -317,7 +342,7 @@ order by e.`Type`, e.ID
 				return false;
 			}
 			$row = $i->fetch_assoc();
-			$par = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open']);
+			$par = new Episode($row['Link'], $row['Breadcrumbs'], (int)$row['ParentID'], $row['Name'], (int)$row['Mind'], (int)$row['Count'], (int)$row['Type'], (int)$row['ID'], $row['Title'], (int)$row['Open'], (int)$row['Depth']);
 			$i->free();
 
 			$sql = "UPDATE `Element` SET ParentID = '".$epi->ID."' WHERE ParentID = '".$par->ID."'";
