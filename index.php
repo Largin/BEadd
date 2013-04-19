@@ -58,7 +58,7 @@ session_start();
 		$_SESSION['cut'] = '0';
 		$CUT = $_SESSION['cut'];
 	}
-	if(isset($_POST['rozwin']) || isset($_POST['cut'])){
+	if(isset($_POST['rozwin'])){
 		$ren = 0;
 		if(!isset($_SESSION['renew'])) {
 			$_SESSION = time();
@@ -171,8 +171,6 @@ if(isset($_POST['AJAX'])) {
 			$_POST['cut'] = $CUT;
 			$ref = 1;
 		}
-		if($ren == 1)
-			$db->renew();
 		$cel = $db->select($_POST['cut']);
 		if($cel !== FALSE) {
 			try {
