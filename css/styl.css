@@ -13,14 +13,29 @@ html, body {
 /* tree */
 ul#tree, ul#tree ul {
 	list-style-type: none;
-	background: url(./vline.png) repeat-y;
 	margin: 0;
 	padding: 0;
 }
+
+ul#tree ul {
+	background: url(./vline.png) repeat-y;
+}
+ul#tree > li.epi {
+	margin: 0;
+	line-height: 12px;
+	background-image: url(./vline.png);
+	background-repeat: no-repeat;
+	background-position: 6px 14px;
+}
+ul#tree > li > .text {
+	text-indent: -13px;
+	padding-left: 13px;
+}
+
 ul#tree ul {
 	margin-left: 6px;
 }
-ul#tree li.epi {
+ul#tree ul li.epi {
 	margin: 0;
 	padding-left: 7px;
 	line-height: 12px;
@@ -28,7 +43,7 @@ ul#tree li.epi {
 	background-repeat: no-repeat, no-repeat;
 	background-position: 0px 0px, 13px 14px;
 }
-ul#tree li {
+ul#tree ul li {
 	margin: 0;
 	padding-left: 7px;
 	line-height: 12px;
@@ -37,17 +52,17 @@ ul#tree li {
 	background-position: 0px 0px;
 	/*border: 1px solid;*/
 }
-ul#tree li > .text {
+ul#tree ul li > .text {
 	text-indent: -13px;
 	padding-left: 13px;
 }
-ul#tree li:last-child.epi {
+ul#tree ul li:last-child.epi {
 	background-color: #FFF;
 	background-image: url(./lastnode.png), url(./vline.png);
 	background-repeat: no-repeat, no-repeat;
 	background-position: 0px -1px, 13px 14px;
 }
-ul#tree li:last-child {
+ul#tree ul li:last-child {
 	background-color: #FFF;
 	background-image: url(./lastnode.png);
 	background-repeat: no-repeat;
